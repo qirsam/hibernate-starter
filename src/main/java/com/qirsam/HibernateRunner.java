@@ -1,55 +1,43 @@
 package com.qirsam;
 
-import com.qirsam.converter.BirthdayConverter;
-import com.qirsam.entity.Birthday;
-import com.qirsam.entity.Role;
+import com.qirsam.entity.Company;
+import com.qirsam.entity.PersonalInfo;
 import com.qirsam.entity.User;
-
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.qirsam.util.HibernateUtil;
 import lombok.SneakyThrows;
-import org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy;
-import org.hibernate.cfg.Configuration;
-
-import java.time.LocalDate;
-import java.util.Map;
+import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HibernateRunner {
 
-    /**
-     * @param args
-     */
     @SneakyThrows
     public static void main(String[] args) {
-        var configuration = new Configuration();
-//        configuration.setPhysicalNamingStrategy(new CamelCaseToUnderscoresNamingStrategy());
-        configuration.addAnnotatedClass(User.class);
-        configuration.addAttributeConverter(new BirthdayConverter());
-        configuration.registerTypeOverride(new JsonBinaryType());
+        var company = Company.builder()
+                .name("Yandex")
+                .build();
+        var user = User.builder()
+                .username("qirsam@gmail.com")
+                .personalInfo(PersonalInfo.builder()
+                        .lastname("Lazchenko")
+                        .firstname("Sergey")
+                        .build())
+                .company(company)
+                .build();
 
-//        configuration.registerTypeOverride(new JsonBinaryType());
-        configuration.configure();
+        try (var sessionFactory = HibernateUtil.buildSessionFactory()) {
+            var sessionOne = sessionFactory.openSession();
+            try (sessionOne) {
+                var transaction = sessionOne.beginTransaction();
 
-        try (var sessionFactory = configuration.buildSessionFactory();
-             var session = sessionFactory.openSession()) {
-            session.beginTransaction();
+//                var user1 = sessionOne.get(User.class, 1L);
+//                var company1 = user1.getCompany();
+//                company1.getId();
+                sessionOne.save(company);
+                sessionOne.save(user);
 
-            var user = User.builder()
-                    .username("1qirsam@gmail.com")
-                    .firstname("Sergey")
-                    .lastname("Lazchenko")
-                    .info("""
-                            {
-                                "name": "Sergey",
-                                "id": 25
-                            }
-                            """)
-                    .birthDate(new Birthday(LocalDate.of(1993, 9, 21)))
-                    .role(Role.ADMIN)
-//                    .age(28)
-                    .build();
-            session.persist(user);
-
-            session.getTransaction().commit();
+                sessionOne.getTransaction().commit();
+            }
         }
     }
 }

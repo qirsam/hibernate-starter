@@ -8,11 +8,15 @@
         <property name="connection.username">postgres</property>
         <property name="connection.password">amidamaru</property>
         <property name="connection.driver_class">org.postgresql.Driver</property>
-        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL10Dialect</property>
         <property name="show_sql">true</property>
         <property name="format_sql">true</property>
 
-<!--        <mapping class="com.qirsam.entity.User"/>-->
+        <mapping class="com.qirsam.entity.User"/>
+        <mapping class="com.qirsam.entity.Company"/>
+        <mapping class="com.qirsam.entity.Profile"/>
+        <mapping class="com.qirsam.entity.Chat"/>
+        <mapping class="com.qirsam.entity.UsersChat"/>
 
 
         <!-- DB schema will be updated if needed -->
