@@ -22,8 +22,12 @@ java {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
     implementation 'org.hibernate:hibernate-core:5.6.9.Final'
     implementation 'com.vladmihalcea:hibernate-types-52:2.16.2'
+    annotationProcessor 'org.hibernate:hibernate-jpamodelgen:5.6.9.Final'
+
+
 
     runtimeOnly 'org.postgresql:postgresql:42.3.5'
 
@@ -33,6 +37,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testImplementation 'org.testcontainers:postgresql:1.17.2'
+
 }
 
 test {

@@ -1,6 +1,7 @@
 package com.qirsam;
 
 import com.qirsam.entity.*;
+import com.qirsam.util.HibernateTestUtil;
 import com.qirsam.util.HibernateUtil;
 import lombok.Cleanup;
 import org.junit.jupiter.api.Test;
@@ -10,12 +11,82 @@ import javax.persistence.Table;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 class HibernateRunnerTest {
+
+    @Test
+    void checkHQL() {
+        try (var sessionFactory = HibernateTestUtil.buildSessionFactory();
+             var session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            var result = session.createQuery(
+                            "select u from User u join u.company c " +
+                            "where u.personalInfo.firstname = :firstname and c.name = :companyName", User.class)
+//                    "select u from User u where u.personalInfo.firstname = ?1", User.class)
+                    .setParameter("firstname", "Sergey")
+                    .setParameter("companyName", "Google")
+//                    .setParameter(1, "Sergey")
+                    .list();
+
+            session.getTransaction().commit();
+        }
+    }
+
+//    @Test
+//    void checkH2() {
+//        try (var sessionFactory = HibernateTestUtil.buildSessionFactory();
+//             var session = sessionFactory.openSession()) {
+//            session.beginTransaction();
+//
+//            var google = Company.builder()
+//                    .name("Google")
+//                    .build();
+//            session.save(google);
+//
+//            var programmer = Programmer.builder()
+//                    .username("qirsam@gmail.com")
+//                    .language(Language.JAVA)
+//                    .company(google)
+//                    .build();
+//            session.save(programmer);
+//
+//            var manager = Manager.builder()
+//                    .username("alya@gmai.com")
+//                    .projectName("Design")
+//                    .company(google)
+//                    .build();
+//            session.save(manager);
+//
+//            session.flush();
+//            session.clear();
+//
+//            var programmer1 = session.get(Programmer.class, 1L);
+//            var manager1 = session.get(User.class, 2L);
+//
+//            session.getTransaction().commit();
+//        }
+//    }
+
+    @Test
+    void testInfo() {
+        try (var sessionFactory = HibernateUtil.buildSessionFactory();
+             var session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+//            var company = session.get(Company.class, 3);
+//            company.getLocales().add(LocaleInfo.of("ru", "Описание на русском"));
+//            company.getLocales().add(LocaleInfo.of("en", "Описание на English"));
+
+            var company = session.get(Company.class, 3);
+            company.getUsers().forEach((k, v) -> System.out.println(v));
+
+            session.getTransaction().commit();
+        }
+    }
 
     @Test
     void checkManyToMany() {
@@ -28,12 +99,11 @@ class HibernateRunnerTest {
             var chat = session.get(Chat.class, 1L);
 
             var usersChat = UsersChat.builder()
-                    .createdAt(Instant.now())
-                    .createdBy(user.getUsername())
+//                    .createdAt(Instant.now())
+//                    .createdBy(user.getUsername())
                     .build();
 
             usersChat.setUser(user);
-            usersChat.setChat(chat);
 //
             session.save(usersChat);
 //
@@ -55,9 +125,10 @@ class HibernateRunnerTest {
              var session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            var user = User.builder()
-                    .username("Test2@gmail.com")
-                    .build();
+//            var user = User.builder()
+//                    .username("Test2@gmail.com")
+//                    .build();
+            User user = null;
 
             var profile = Profile.builder()
                     .languages("ru")
@@ -114,9 +185,10 @@ class HibernateRunnerTest {
                 .name("Facebook")
                 .build();
 
-        var alisa = User.builder()
-                .username("Alisa@ya.ru")
-                .build();
+       User alisa = null;
+//        var alisa = User.builder()
+//                .username("Alisa@ya.ru")
+//                .build();
 
         company.addUser(alisa);
 
@@ -163,8 +235,7 @@ class HibernateRunnerTest {
 
     @Test
     void checkReflectionApi() {
-        var user = User.builder()
-                .build();
+        User user = null;
 
         String sql = """
                 insert

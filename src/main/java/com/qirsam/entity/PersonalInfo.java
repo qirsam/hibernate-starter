@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -15,5 +16,5 @@ import javax.persistence.Embeddable;
 public class PersonalInfo {
     private String firstname;
     private String lastname;
-    private Birthday birthDate;
+    private LocalDate birthDate;
 }

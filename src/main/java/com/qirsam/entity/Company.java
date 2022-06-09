@@ -3,8 +3,10 @@ package com.qirsam.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Data
@@ -22,14 +24,28 @@ public class Company {
     @Column(nullable = false, unique = true)
     private String name;
 
+//    @Builder.Default
+//    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+////    @OrderBy("username DESC, personalInfo.lastname ASC ")
+////    @org.hibernate.annotations.OrderBy(clause = "username DESC, lastname ASC")
+////    @ToString.Exclude
+////    @EqualsAndHashCode.Exclude
+////    @OrderColumn(name = "id")
+////    @SortNatural
+//    private Set<User> users = new TreeSet<>();
+
     @Builder.Default
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @ToString.Exclude
-//    @EqualsAndHashCode.Exclude
-    private Set<User> users = new HashSet<>();
+    private Map<String, User> users = new HashMap<>();
+
+    @Builder.Default
+    @ElementCollection
+    @CollectionTable(name = "company_locale")
+    private List<LocaleInfo> locales = new ArrayList<>();
 
     public void addUser(User user) {
-        users.add(user);
+//        users.add(user);
+        users.put(user.getUsername(), user);
         user.setCompany(this);
     }
 }

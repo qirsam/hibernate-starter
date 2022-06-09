@@ -5,9 +5,9 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import static com.qirsam.util.StringUtils.SPACE;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +17,9 @@ import java.util.Set;
 @Table(name = "users", schema = "public")
 @EqualsAndHashCode(of = "username")
 @ToString(exclude = {"company", "profile", "usersChats"})
-public class User {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
+public class User implements Comparable<User>, BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,4 +51,16 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UsersChat> usersChats = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "receiver")
+    private List<Payment> payments = new ArrayList<>();
+
+    @Override
+    public int compareTo(User o) {
+        return username.compareTo(o.username);
+    }
+
+    public String fullName() {
+        return getPersonalInfo().getFirstname() + SPACE + getPersonalInfo().getLastname();
+    }
 }

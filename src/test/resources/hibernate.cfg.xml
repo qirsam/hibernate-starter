@@ -4,24 +4,19 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <property name="connection.url">jdbc:postgresql://localhost:5433/postgres</property>
-        <property name="connection.username">postgres</property>
-        <property name="connection.password">amidamaru</property>
         <property name="connection.driver_class">org.postgresql.Driver</property>
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL10Dialect</property>
         <property name="show_sql">true</property>
         <property name="format_sql">true</property>
+        <!--         DB schema will be updated if needed -->
+        <property name="hibernate.hbm2ddl.auto">create</property>
 
         <mapping class="com.qirsam.entity.User"/>
         <mapping class="com.qirsam.entity.Company"/>
         <mapping class="com.qirsam.entity.Profile"/>
         <mapping class="com.qirsam.entity.Chat"/>
         <mapping class="com.qirsam.entity.UsersChat"/>
-<!--        <mapping class="com.qirsam.entity.Programmer"/>-->
-<!--        <mapping class="com.qirsam.entity.Manager"/>-->
 
 
-        <!-- DB schema will be updated if needed -->
-        <!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
     </session-factory>
 </hibernate-configuration>

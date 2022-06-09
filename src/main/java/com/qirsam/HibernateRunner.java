@@ -16,14 +16,15 @@ public class HibernateRunner {
         var company = Company.builder()
                 .name("Yandex")
                 .build();
-        var user = User.builder()
-                .username("qirsam@gmail.com")
-                .personalInfo(PersonalInfo.builder()
-                        .lastname("Lazchenko")
-                        .firstname("Sergey")
-                        .build())
-                .company(company)
-                .build();
+//        var user = User.builder()
+//                .username("qirsam@gmail.com")
+//                .personalInfo(PersonalInfo.builder()
+//                        .lastname("Lazchenko")
+//                        .firstname("Sergey")
+//                        .build())
+//                .company(company)
+//                .build();
+                User user = null;
 
         try (var sessionFactory = HibernateUtil.buildSessionFactory()) {
             var sessionOne = sessionFactory.openSession();

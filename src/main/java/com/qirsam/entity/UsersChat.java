@@ -1,12 +1,8 @@
 package com.qirsam.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +10,8 @@ import java.time.Instant;
 @Builder
 @Entity
 @Table(name = "users_chat")
-public class UsersChat {
+@EqualsAndHashCode(callSuper=false)
+public class UsersChat extends AuditableEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +23,6 @@ public class UsersChat {
     @ManyToOne
     private Chat chat;
 
-    private Instant createdAt;
-
-    private String createdBy;
 
     public void setUser(User user) {
         this.user = user;
