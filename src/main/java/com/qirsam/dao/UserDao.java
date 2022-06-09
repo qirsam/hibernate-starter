@@ -1,7 +1,9 @@
 package com.qirsam.dao;
 
 import com.qirsam.dto.CompanyDto;
+import com.qirsam.dto.PaymentFilter;
 import com.qirsam.entity.*;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQuery;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -93,7 +95,7 @@ public class UserDao {
                 .fetch();
     }
 
-    public Double findAveragePaymentAmountByFirstAndLastNames(Session session, String firstname, String lastname) {
+    public Double findAveragePaymentAmountByFirstAndLastNames(Session session, PaymentFilter filter) {
 //        return session.createQuery("select avg(p.amount) from Payment p " +
 //                                   "join p.receiver u " +
 //                                   "where u.personalInfo.firstname= :firstname " +
@@ -101,12 +103,16 @@ public class UserDao {
 //                .setParameter("firstname", firstname)
 //                .setParameter("lastname", lastname)
 //                .uniqueResult();
+        var predicate = QPredicate.builder()
+                .add(filter.getFirstname(), user.personalInfo.firstname::eq)
+                .add(filter.getFirstname(), user.personalInfo.lastname::eq)
+                .buildAnd();
+
         return new JPAQuery<Double>(session)
                 .select(payment.amount.avg())
                 .from(payment)
                 .join(payment.receiver, user)
-                .where(user.personalInfo.firstname.eq(firstname)
-                        .and(user.personalInfo.lastname.eq(lastname)))
+                .where(predicate)
                 .fetchOne();
     }
 

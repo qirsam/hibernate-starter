@@ -1,6 +1,7 @@
 package com.qirsam.dao;
 
 import com.qirsam.dto.CompanyDto;
+import com.qirsam.dto.PaymentFilter;
 import com.qirsam.entity.Payment;
 import com.qirsam.entity.User;
 import com.qirsam.util.HibernateTestUtil;
@@ -112,7 +113,12 @@ class UserDaoTest {
         @Cleanup Session session = sessionFactory.openSession();
         session.beginTransaction();
 
-        Double averagePaymentAmount = userDao.findAveragePaymentAmountByFirstAndLastNames(session, "Bill", "Gates");
+        var filter = PaymentFilter.builder()
+                .lastname("Gates")
+                .firstname("Bill")
+                .build();
+
+        Double averagePaymentAmount = userDao.findAveragePaymentAmountByFirstAndLastNames(session, filter);
         assertThat(averagePaymentAmount).isEqualTo(300.0);
 
         session.getTransaction().commit();
