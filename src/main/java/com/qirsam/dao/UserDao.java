@@ -1,17 +1,22 @@
 package com.qirsam.dao;
 
+import com.qirsam.dto.CompanyDto;
 import com.qirsam.entity.*;
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.hibernate.Session;
+import com.querydsl.core.*;
 
 import javax.persistence.CollectionTable;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.MapJoin;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.qirsam.entity.QCompany.company;
+import static com.qirsam.entity.QPayment.payment;
+import static com.qirsam.entity.QUser.user;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserDao {
@@ -21,15 +26,10 @@ public class UserDao {
     public List<User> findAll(Session session) {
 //        return session.createQuery("select u from User u", User.class)
 //                .list();
-        var cb = session.getCriteriaBuilder();
-
-        var criteria = cb.createQuery(User.class);
-        var user = criteria.from(User.class);
-
-        criteria.select(user);
-
-        return session.createQuery(criteria)
-                .list();
+        return new JPAQuery<User>(session)
+                .select(user)
+                .from(user)
+                .fetch();
     }
 
     public List<User> findAllByFirstName(Session session, String firstname) {
@@ -37,33 +37,23 @@ public class UserDao {
 //                                   "where u.personalInfo.firstname = :firstname", User.class)
 //                .setParameter("firstname", firstname)
 //                .list();
-        var cb = session.getCriteriaBuilder();
-
-        var criteria = cb.createQuery(User.class);
-        var user = criteria.from(User.class);
-
-        criteria.select(user).where(
-                cb.equal(user.get(User_.personalInfo).get(PersonalInfo_.firstname), firstname));
-
-        return session.createQuery(criteria)
-                .list();
+        return new JPAQuery<User>(session)
+                .select(user)
+                .from(user)
+                .where(user.personalInfo.firstname.eq(firstname))
+                .fetch();
     }
 
     public List<User> findLimitedUsersOrderedByBirthday(Session session, int limit) {
 //        return session.createQuery("select u from User u order by u.personalInfo.birthDate", User.class)
 //                .setMaxResults(limit)
 //                .list();
-        var cb = session.getCriteriaBuilder();
-
-        var criteria = cb.createQuery(User.class);
-        var user = criteria.from(User.class);
-
-        criteria.select(user).orderBy(cb.asc(user.get(User_.personalInfo).get(PersonalInfo_.birthDate)));
-
-        return session.createQuery(criteria)
-                .setMaxResults(limit)
-                .list();
-
+        return new JPAQuery<User>(session)
+                .select(user)
+                .from(user)
+                .orderBy(user.personalInfo.birthDate.asc())
+                .limit(limit)
+                .fetch();
     }
 
     public List<User> findAllByCompanyName(Session session, String companyName) {
@@ -77,59 +67,85 @@ public class UserDao {
 //                                   "where c.name  = :companyName", User.class)
 //                .setParameter("companyName", companyName)
 //                .list();
-
-        var cb = session.getCriteriaBuilder();
-
-        var criteria = cb.createQuery(User.class);
-        var company = criteria.from(Company.class);
-        var users = company.join(Company_.users);
-
-        criteria.select(users).where(
-                cb.equal(company.get(Company_.name), companyName)
-        );
-
-        return session.createQuery(criteria)
-                .list();
-
+        return new JPAQuery<User>(session)
+                .select(user)
+                .from(company)
+                .join(company.users, user)
+                .where(company.name.eq(companyName))
+                .fetch();
     }
 
     public List<Payment> findAllPaymentsByCompanyName(Session session, String companyName) {
-        return session.createQuery("select p from Payment p " +
-                                   "join p.receiver u " +
-                                   "join u.company c " +
-                                   "where c.name = :companyName " +
-                                   "order by u.personalInfo.firstname, p.amount", Payment.class)
-                .setParameter("companyName", companyName)
-                .list();
+//        return session.createQuery("select p from Payment p " +
+//                                   "join p.receiver u " +
+//                                   "join u.company c " +
+//                                   "where c.name = :companyName " +
+//                                   "order by u.personalInfo.firstname, p.amount", Payment.class)
+//                .setParameter("companyName", companyName)
+//                .list();
+        return new JPAQuery<Payment>(session)
+                .select(payment)
+                .from(payment)
+                .join(payment.receiver, user)
+                .join(user.company, company)
+                .where(company.name.eq(companyName))
+                .orderBy(user.personalInfo.firstname.asc(), payment.amount.asc())
+                .fetch();
     }
 
     public Double findAveragePaymentAmountByFirstAndLastNames(Session session, String firstname, String lastname) {
-        return session.createQuery("select avg(p.amount) from Payment p " +
-                                   "join p.receiver u " +
-                                   "where u.personalInfo.firstname= :firstname " +
-                                   "and u.personalInfo.lastname = :lastname", Double.class)
-                .setParameter("firstname", firstname)
-                .setParameter("lastname", lastname)
-                .uniqueResult();
+//        return session.createQuery("select avg(p.amount) from Payment p " +
+//                                   "join p.receiver u " +
+//                                   "where u.personalInfo.firstname= :firstname " +
+//                                   "and u.personalInfo.lastname = :lastname", Double.class)
+//                .setParameter("firstname", firstname)
+//                .setParameter("lastname", lastname)
+//                .uniqueResult();
+        return new JPAQuery<Double>(session)
+                .select(payment.amount.avg())
+                .from(payment)
+                .join(payment.receiver, user)
+                .where(user.personalInfo.firstname.eq(firstname)
+                        .and(user.personalInfo.lastname.eq(lastname)))
+                .fetchOne();
     }
 
 
-    public List<Object[]> findCompanyNamesWithAvgUserPaymentsOrderedByCompanyName(Session session) {
-        return session.createQuery("select c.name, avg(p.amount) from Company c " +
-                                   "join c.users u " +
-                                   "join u.payments p " +
-                                   "group by c.name " +
-                                   "order by c.name", Object[].class)
-                .list();
+    public List<Tuple> findCompanyNamesWithAvgUserPaymentsOrderedByCompanyName(Session session) {
+//        return session.createQuery("select c.name, avg(p.amount) from Company c " +
+//                                   "join c.users u " +
+//                                   "join u.payments p " +
+//                                   "group by c.name " +
+//                                   "order by c.name", Object[].class)
+//                .list();
+        return new JPAQuery<Tuple>(session)
+                .select(company.name, payment.amount.avg())
+                .from(company)
+                .join(company.users, user)
+                .join(user.payments, payment)
+                .groupBy(company.name)
+                .orderBy(company.name.asc())
+                .fetch();
     }
 
-    public List<Object[]> isItPossible(Session session) {
-        return session.createQuery("select u, avg(p.amount) from User u " +
-                                   "join u.payments p " +
-                                   "group by u " +
-                                   "having avg (p.amount) > (select avg(p.amount) from Payment p) " +
-                                   "order by u.personalInfo.firstname", Object[].class)
-                .list();
+    public List<Tuple> isItPossible(Session session) {
+//        return session.createQuery("select u, avg(p.amount) from User u " +
+//                                   "join u.payments p " +
+//                                   "group by u " +
+//                                   "having avg (p.amount) > (select avg(p.amount) from Payment p) " +
+//                                   "order by u.personalInfo.firstname", Object[].class)
+//                .list();
+        return new JPAQuery<Tuple>(session)
+                .select(user, payment.amount.avg())
+                .from(user)
+                .join(user.payments, payment)
+                .groupBy(user.id)
+                .having(payment.amount.avg().gt(new JPAQuery<Double>(session)
+                        .select(payment.amount.avg())
+                        .from(payment)
+                ))
+                .orderBy(user.personalInfo.firstname.asc())
+                .fetch();
     }
 
 

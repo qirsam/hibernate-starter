@@ -1,13 +1,9 @@
 package com.qirsam;
 
 import com.qirsam.entity.Company;
-import com.qirsam.entity.PersonalInfo;
 import com.qirsam.entity.User;
 import com.qirsam.util.HibernateUtil;
 import lombok.SneakyThrows;
-import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HibernateRunner {
 
