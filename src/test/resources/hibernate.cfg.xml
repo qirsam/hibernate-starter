@@ -15,7 +15,7 @@
         <mapping class="com.qirsam.entity.Company"/>
         <mapping class="com.qirsam.entity.Profile"/>
         <mapping class="com.qirsam.entity.Chat"/>
-        <mapping class="com.qirsam.entity.UsersChat"/>
+        <mapping class="com.qirsam.entity.UserChat"/>
 
 
     </session-factory>

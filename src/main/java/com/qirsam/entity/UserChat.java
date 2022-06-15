@@ -1,5 +1,6 @@
 package com.qirsam.entity;
 
+import com.qirsam.listener.UserChatListener;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,7 +12,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "users_chat")
 @EqualsAndHashCode(callSuper=false)
-public class UsersChat extends AuditableEntity<Long> {
+@EntityListeners(UserChatListener.class)
+public class UserChat extends AuditableEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +28,11 @@ public class UsersChat extends AuditableEntity<Long> {
 
     public void setUser(User user) {
         this.user = user;
-        this.user.getUsersChats().add(this);
+        this.user.getUserChats().add(this);
     }
 
     public void setChat(Chat chat) {
         this.chat = chat;
-        this.chat.getUsersChats().add(this);
+        this.chat.getUserChats().add(this);
     }
 }

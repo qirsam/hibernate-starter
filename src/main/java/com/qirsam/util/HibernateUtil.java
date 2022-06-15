@@ -25,7 +25,7 @@ public class HibernateUtil {
         configuration.addAnnotatedClass(Company.class);
         configuration.addAnnotatedClass(Profile.class);
         configuration.addAnnotatedClass(Chat.class);
-        configuration.addAnnotatedClass(UsersChat.class);
+        configuration.addAnnotatedClass(UserChat.class);
         configuration.addAnnotatedClass(Payment.class);
 //        configuration.addAnnotatedClass(Programmer.class);
 //        configuration.addAnnotatedClass(Manager.class);

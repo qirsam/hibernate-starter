@@ -1,40 +1,27 @@
 package com.qirsam;
 
-import com.qirsam.entity.Company;
-import com.qirsam.entity.User;
+import com.qirsam.entity.Payment;
 import com.qirsam.util.HibernateUtil;
+import com.qirsam.util.TestDataImporter;
 import lombok.SneakyThrows;
+
+import javax.persistence.LockModeType;
+import javax.transaction.Transactional;
 
 public class HibernateRunner {
 
+    @Transactional
     @SneakyThrows
     public static void main(String[] args) {
-        var company = Company.builder()
-                .name("Yandex")
-                .build();
-//        var user = User.builder()
-//                .username("qirsam@gmail.com")
-//                .personalInfo(PersonalInfo.builder()
-//                        .lastname("Lazchenko")
-//                        .firstname("Sergey")
-//                        .build())
-//                .company(company)
-//                .build();
-                User user = null;
+        try (var sessionFactory = HibernateUtil.buildSessionFactory();
+             var session = sessionFactory.openSession()) {
+            TestDataImporter.importData(sessionFactory);
+            session.beginTransaction();
 
-        try (var sessionFactory = HibernateUtil.buildSessionFactory()) {
-            var sessionOne = sessionFactory.openSession();
-            try (sessionOne) {
-                var transaction = sessionOne.beginTransaction();
+            var payment = session.find(Payment.class, 1L, LockModeType.OPTIMISTIC);
+            payment.setAmount(payment.getAmount() + 10);
 
-//                var user1 = sessionOne.get(User.class, 1L);
-//                var company1 = user1.getCompany();
-//                company1.getId();
-                sessionOne.save(company);
-                sessionOne.save(user);
-
-                sessionOne.getTransaction().commit();
-            }
+            session.getTransaction().commit();
         }
     }
 }

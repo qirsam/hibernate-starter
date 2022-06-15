@@ -27,7 +27,7 @@ public class Profile {
     private String languages;
 
     public void setUser(User user) {
-        user.setProfile(this);
+//        user.setProfile(this);
         this.user = user;
     }
 }

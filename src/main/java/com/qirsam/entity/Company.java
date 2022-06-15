@@ -17,6 +17,7 @@ import java.util.Map;
 @Builder
 public class Company {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
